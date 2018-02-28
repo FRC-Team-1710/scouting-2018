@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+
+<html>
+  <head><title>Welcome</title></head>
+  <body>
+    <h1>Teams In Match {{match_number}}</h1>
+      <form action="/scout/team_select/" method="post">
+      {% csrf_token %}
+      {% for team in teams %}
+        <input type="submit" name={{team}} value={{team}}/>
+      {% endfor %}
+  </body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html>
+  <head><title>Teleop</title></head>
+  <body>
+    <h1>Team {{team}} in match {{match_number}}</h1>
+
+    <input type="button" onclick="startTimer()" id="timer-start" value="Cube Picked Up"></input>
+    <input type="button" onclick="stopTimer('switch')" id="switch-place" value = "Switch" disabled></input>
+    <input type="button" onclick="stopTimer('scale')" id="scale-place" value = "Scale" disabled></input>
+    <input type="button" onclick="stopTimer('drop')" id="cube-dropped" value = "Dropped" disabled></input>
+
+    <script>
+      var cubePickedUp = false;
+      var times = [];
+      var time = 0;
+      var switchPlaces = 0;
+      var scalePlaces = 0;
+      var cubeDrops = 0;
+
+      var timerHandler;
+
+      function startTimer() {
+        timerHandler = setInterval(timer, 10);
+      }
+
+      function stopTimer(location) {
+        if(location == "switch") {
+          switchPlaces++;
+          times.push(["Switch:" + switchPlaces, time]);
+        } else if(location == "scale") {
+          scalePlaces++;
+          times.push(["Scale:" + scalePlaces, time]);
+        } else {
+          cubeDrops++;
+          times.push(["Drop:" + cubeDrops, time]);
+        }
+        cubePickedUp = false;
+
+        document.getElementById("id_times").value = times.join("]");
+        clearInterval(timerHandler);
+        time = 0;
+        document.getElementById("timer-start").disabled = false;
+        document.getElementById("switch-place").disabled = true;
+        document.getElementById("scale-place").disabled = true;
+        document.getElementById("cube-dropped").disabled = true;
+      }
+
+      function timer() {
+        cubePickedUp = true;
+        if(cubePickedUp == true) {
+          time += .01;
+          document.getElementById("timer").innerHTML = "Time: " + time;
+          document.getElementById("timer-start").disabled = true;
+          document.getElementById("switch-place").disabled = false;
+          document.getElementById("scale-place").disabled = false;
+          document.getElementById("cube-dropped").disabled = false;
+        }
+      }
+    </script>
+
+    <h3 id = "timer">Time: 0</h3>
+    <h5 id = "time-list"></h5>
+
+    <!--every time a cycle is clocked the JS can write to a form field... make the field hidden-->
+
+    <form action="/scout/scout_teleop/" method="post">
+      {% csrf_token %}
+      {% for field in form.visible_fields %}
+              {{ field.errors }}
+              {{ field.help_text }}<br />
+              {{field }}<br />
+      {% endfor %}
+    <input type="submit" value="submit times" />
+  </body>
+</html>

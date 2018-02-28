@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html>
+  {% load static %}
+  <link type="text/css" rel="stylesheet" href="{% static 'scoutapp2018/style.css' %}" />
+  <body>
+    <h1>Match data for team {{data.0.team}}</h1>
+
+    <table>
+      <tr>
+        <th>Match Number</th>
+        <th>Cycle Time (seconds)</th>
+        <th>Cycle Location</th>
+      </tr>
+      {% for cycle in data %}
+        <tr>
+          <td>{{cycle.match}}</td>
+          <td>{{cycle.time}}</td>
+          <td>{{cycle.location}}</td>
+        </tr>
+      {% endfor %}
+    </table>
+
+  </body>
+</html>

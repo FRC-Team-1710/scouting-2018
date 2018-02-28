@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+<html>
+
+  <body>
+    <form action="/scout/team_lookup/" method="post">
+      {% csrf_token %}
+      {% for field in form.visible_fields %}
+              {{ field.errors }}
+              {{ field.help_text }}<br />
+              {{field }}<br />
+      {% endfor %}
+    <input type="submit" value="search" />
+  </body>
+
+</html>
