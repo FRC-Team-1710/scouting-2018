@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from scoutapp2018.choices import  *
 
 class CycleTime(models.Model):
     time = models.DecimalField(max_digits=10, decimal_places=4)
@@ -21,4 +22,14 @@ class Match(models.Model):
     red_two = models.PositiveIntegerField()
     red_three = models.PositiveIntegerField()
 
+    def __unicode__(self):
+        return 'Match ' + str(self.match_number)
+
 class Auto(models.Model):
+    match = models.IntegerField()
+    team = models.IntegerField()
+    starting_position = models.CharField(max_length=10000, choices=AUTO_START_CHOICES)
+    cubes_in_switch = models.IntegerField()
+    cubes_in_scale = models.IntegerField()
+    cubes_in_vault = models.IntegerField()
+    cubes_dropped = models.IntegerField()

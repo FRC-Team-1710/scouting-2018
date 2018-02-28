@@ -4,19 +4,42 @@
   {% load static %}
   <link type="text/css" rel="stylesheet" href="{% static 'scoutapp2018/style.css' %}" />
   <body>
-    <h1>Match data for team {{data.0.team}}</h1>
+    <h1>Match data for team {{times.0.team}}</h1>
 
+    <h3>Teleop</h3>
     <table>
       <tr>
         <th>Match Number</th>
         <th>Cycle Time (seconds)</th>
         <th>Cycle Location</th>
       </tr>
-      {% for cycle in data %}
+      {% for cycle in times %}
         <tr>
           <td>{{cycle.match}}</td>
           <td>{{cycle.time}}</td>
           <td>{{cycle.location}}</td>
+        </tr>
+      {% endfor %}
+    </table>
+
+    <h3>Auto</h3>
+    <table>
+      <tr>
+        <th>Match Number</th>
+        <th>Starting Position</th>
+        <th>Cubes in switch</th>
+        <th>Cubes in scale</th>
+        <th>Cubes in exchange</th>
+        <th>Cubes dropped</th>
+      </tr>
+      {% for auto in autos %}
+        <tr>
+          <td>{{auto.match}}</td>
+          <td>{{auto.starting_position}}</td>
+          <td>{{auto.cubes_in_switch}}</td>
+          <td>{{auto.cubes_in_scale}}</td>
+          <td>{{auto.cubes_in_vault}}</td>
+          <td>{{auto.cubes_dropped}}</td>
         </tr>
       {% endfor %}
     </table>

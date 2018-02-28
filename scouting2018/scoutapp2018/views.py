@@ -2,8 +2,8 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm
-from scoutapp2018.models import CycleTime, Match
+from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm
+from scoutapp2018.models import CycleTime, Match, Auto
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 
@@ -41,34 +41,49 @@ def team_select(request):
 
     if str(current_match.blue_one) in request.POST:
         request.session['team'] = current_match.blue_one
-        return HttpResponseRedirect('/scout/scout_teleop/')
+        return HttpResponseRedirect('/scout/scout_auto/')
     elif str(current_match.blue_two) in request.POST:
         request.session['team'] = current_match.blue_two
-        return HttpResponseRedirect('/scout/scout_teleop/')
+        return HttpResponseRedirect('/scout/scout_auto/')
     elif str(current_match.blue_three) in request.POST:
         request.session['team'] = current_match.blue_three
-        return HttpResponseRedirect('/scout/scout_teleop/')
+        return HttpResponseRedirect('/scout/scout_auto/')
     elif str(current_match.red_one) in request.POST:
         request.session['team'] = current_match.red_one
-        return HttpResponseRedirect('/scout/scout_teleop/')
+        return HttpResponseRedirect('/scout/scout_auto/')
     elif str(current_match.red_two) in request.POST:
         request.session['team'] = current_match.red_two
-        return HttpResponseRedirect('/scout/scout_teleop/')
+        return HttpResponseRedirect('/scout/scout_auto/')
     elif str(current_match.red_three) in request.POST:
         request.session['team'] = current_match.red_three
-        return HttpResponseRedirect('/scout/scout_teleop/')
+        return HttpResponseRedirect('/scout/scout_auto/')
 
     context = {'match_number' : request.session.get('current_match'), 'teams' : teams_in_match}
     return render(request, "scoutapp2018/team_select.html", context)
 
 def scout_auto(request):
-    return render(request, "scoutapp2018/scout_auto.html")
+    if request.method == 'POST':
+        form = AutoForm(request.POST)
+        if form.is_valid():
+            new_auto = Auto(team=request.session.get('team'),
+                            match=request.session.get('current_match'),
+                            starting_position=form.cleaned_data['starting_position'],
+                            cubes_in_switch=form.cleaned_data['cubes_in_switch'],
+                            cubes_in_scale=form.cleaned_data['cubes_in_scale'],
+                            cubes_in_vault=form.cleaned_data['cubes_in_vault'],
+                            cubes_dropped=form.cleaned_data['cubes_dropped'])
+            new_auto.save()
+            return HttpResponseRedirect('/scout/scout_teleop/')
+    else:
+        form = AutoForm()
+
+    context = {'form' : form}
+    return render(request, "scoutapp2018/scout_auto.html", context)
 
 def scout_teleop(request):
     if request.method == 'POST':
         form = TeleopForm(request.POST)
         if form.is_valid():
-            print "aaaa"
             #really icky, each cycle is seperated by ']', each location by ':' and each time by ','
             ugly_string_from_form = str(form.cleaned_data['times'])
             #a list containing each cycle, picked out of the raw form data
@@ -112,13 +127,8 @@ def team_lookup(request):
     return render(request, "scoutapp2018/team_lookup.html", {'form' : form})
 
 def team(request, team_number):
-    cycle_times = CycleTime.objects.order_by('team')
-    times_for_team = []
+    cycle_times = CycleTime.objects.filter(team=team_number)
+    autos = Auto.objects.filter(team=team_number)
 
-    for cycle in cycle_times:
-        if cycle.team == int(team_number):
-            times_for_team.append(cycle)
-
-
-    context = {'data': times_for_team}
+    context = {'times': cycle_times, 'autos' : autos}
     return render(request, "scoutapp2018/team.html", context)
