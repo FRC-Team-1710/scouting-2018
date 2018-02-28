@@ -22,6 +22,13 @@ class Match(models.Model):
     red_two = models.PositiveIntegerField()
     red_three = models.PositiveIntegerField()
 
+    blue_one_scout = models.CharField(max_length = 35, default = 'none')
+    blue_two_scout = models.CharField(max_length = 35, default = 'none')
+    blue_three_scout = models.CharField(max_length = 35, default = 'none')
+    red_one_scout = models.CharField(max_length = 35, default = 'none')
+    red_two_scout = models.CharField(max_length = 35, default = 'none')
+    red_three_scout = models.CharField(max_length = 35, default = 'none')
+
     def __unicode__(self):
         return 'Match ' + str(self.match_number)
 

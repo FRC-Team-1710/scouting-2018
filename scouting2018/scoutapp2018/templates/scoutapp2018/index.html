@@ -4,7 +4,14 @@
   <head><title>Welcome</title></head>
   <body>
     <h1>Team 1710 Scouting</h1>
-    <a href = "/scout/match_entry/">Start Scouting</a>
-    <a href = "/scout/team_lookup/">Lookup Team</a>
+    {% if user != 42 %}
+      <a href = "/scout/match_entry/">Start Scouting</a>
+      <a href = "/scout/team_lookup/">Lookup Team</a>
+      <a href = "/scout/logout/">logout</a>
+      <p>What's crackin' {{user.username}}???</p>
+    {% else %}
+      <a href = "/scout/scout_login/">Login</a>
+      <a href = "/scout/scout_register/">Register</a>
+    {% endif %}
   </body>
 </html>

@@ -7,7 +7,15 @@
       <form action="/scout/team_select/" method="post">
       {% csrf_token %}
       {% for team in teams %}
-        <input type="submit" name={{team}} value={{team}}/>
+        <input type="submit" name={{team}} value={{team}}>
+      {% endfor %}
+
+      {% for team in selected_teams %}
+        <input type="submit" name={{team}} value={{team}} disabled>
+      {% endfor %}
+
+      {% for error in errors %}
+        <h5 style="color:red">{{error}}</h5>
       {% endfor %}
   </body>
 </html>

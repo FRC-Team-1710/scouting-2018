@@ -2,14 +2,64 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm
+from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm, ScoutRegister, ScoutLogin
 from scoutapp2018.models import CycleTime, Match, Auto
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth import logout as django_logout
+
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+
 
 def index(request):
-    return render(request, "scoutapp2018/index.html")
+    context = {}
+    if request.user.username:
+        context = {'user' : request.user}
+    else:
+        context = {'user' : 42}
+    return render(request, "scoutapp2018/index.html", context)
 
+def scout_register(request):
+	if request.method == 'POST':
+		form = ScoutRegister(request.POST)
+		if form.is_valid():
+			user = User.objects.create_user(form.cleaned_data['scout_name'], form.cleaned_data['scout_email'], form.cleaned_data['scout_password'])
+			user.save()
+			user = authenticate(username=form.cleaned_data['scout_name'], password=form.cleaned_data['scout_password'])
+			if user is not None:
+				login(request, user)
+				return HttpResponseRedirect('/scout/')
+			return index(request)
+		else:
+			print form.errors
+	else:
+		form = ScoutRegister()
+	return render(request, 'scoutapp2018/register_scout.html', { 'form' : form})
+
+def scout_login(request):
+	if request.method == 'POST':
+		form = ScoutLogin(request.POST)
+		if form.is_valid():
+			user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+			if user is not None:
+				login(request, user)
+				return HttpResponseRedirect('/scout/')
+			else:
+				return HttpResponse("login failed")
+		else:
+			print form.errors
+	else:
+		form = ScoutLogin()
+	return render(request, 'scoutapp2018/scout_login.html', { 'form' : form })
+
+@login_required
+def logout(request):
+	django_logout(request)
+	return HttpResponseRedirect('/scout/')
+
+@login_required
 def match_entry(request):
     if request.method == 'POST':
         form = MatchEntryForm(request.POST)
@@ -22,15 +72,21 @@ def match_entry(request):
 
     return render(request, "scoutapp2018/match_entry.html", {'form' : form})
 
+@login_required
 def team_select(request):
     match_number = request.session.get('current_match')
     matches = Match.objects.order_by('match_number')
     current_match = None
     teams_in_match = []
+    teams_already_chosen = []
+    errors = []
 
     for match in matches:
         if match.match_number == match_number:
             current_match = match
+
+    scouts_in_match = [current_match.blue_one_scout,current_match.blue_two_scout,current_match.blue_three_scout,
+                        current_match.red_one_scout, current_match.red_two_scout, current_match.red_three_scout]
 
     teams_in_match.append(str(current_match.blue_one))
     teams_in_match.append(str(current_match.blue_two))
@@ -39,28 +95,48 @@ def team_select(request):
     teams_in_match.append(str(current_match.red_two))
     teams_in_match.append(str(current_match.red_three))
 
-    if str(current_match.blue_one) in request.POST:
+    for idx,scout in enumerate(scouts_in_match):
+        if scout != 'none':
+            teams_already_chosen.append(teams_in_match[idx])
+            del teams_in_match[idx]
+
+    if str(current_match.blue_one) in request.POST and (current_match.blue_one_scout == 'none' or current_match.blue_one_scout == request.user.username):
+        current_match.blue_one_scout = request.user.username
+        current_match.save()
         request.session['team'] = current_match.blue_one
         return HttpResponseRedirect('/scout/scout_auto/')
-    elif str(current_match.blue_two) in request.POST:
+    elif str(current_match.blue_two) in request.POST and (current_match.blue_two_scout == 'none' or current_match.blue_two_scout == request.user.username):
+        current_match.blue_two_scout = request.user.username
+        current_match.save()
         request.session['team'] = current_match.blue_two
         return HttpResponseRedirect('/scout/scout_auto/')
-    elif str(current_match.blue_three) in request.POST:
+    elif str(current_match.blue_three) in request.POST and (current_match.blue_three_scout == 'none' or current_match.blue_three_scout == request.user.username):
+        current_match.blue_three_scout = request.user.username
+        current_match.save()
         request.session['team'] = current_match.blue_three
         return HttpResponseRedirect('/scout/scout_auto/')
-    elif str(current_match.red_one) in request.POST:
+    elif str(current_match.red_one) in request.POST and (current_match.red_one_scout == 'none' or current_match.red_one_scout == request.user.username):
+        current_match.red_one_scout = request.user.username
+        current_match.save()
         request.session['team'] = current_match.red_one
         return HttpResponseRedirect('/scout/scout_auto/')
-    elif str(current_match.red_two) in request.POST:
+    elif str(current_match.red_two) in request.POST and (current_match.red_two_scout == 'none' or current_match.red_two_scout == request.user.username):
+        current_match.red_two_scout = request.user.username
+        current_match.save()
         request.session['team'] = current_match.red_two
         return HttpResponseRedirect('/scout/scout_auto/')
-    elif str(current_match.red_three) in request.POST:
+    elif str(current_match.red_three) in request.POST and (current_match.red_three_scout == 'none' or current_match.red_three_scout == request.user.username):
+        current_match.red_three_scout = request.user.username
+        current_match.save()
         request.session['team'] = current_match.red_three
         return HttpResponseRedirect('/scout/scout_auto/')
+    else:
+        errors.append("Please Select a Team")
 
-    context = {'match_number' : request.session.get('current_match'), 'teams' : teams_in_match}
+    context = {'match_number' : request.session.get('current_match'), 'teams' : teams_in_match, 'errors' : errors, 'selected_teams' : teams_already_chosen}
     return render(request, "scoutapp2018/team_select.html", context)
 
+@login_required
 def scout_auto(request):
     if request.method == 'POST':
         form = AutoForm(request.POST)
@@ -80,6 +156,7 @@ def scout_auto(request):
     context = {'form' : form}
     return render(request, "scoutapp2018/scout_auto.html", context)
 
+@login_required
 def scout_teleop(request):
     if request.method == 'POST':
         form = TeleopForm(request.POST)
@@ -113,6 +190,7 @@ def scout_teleop(request):
 
     return render(request, "scoutapp2018/scout_teleop.html", {'form' : form, 'match_number' : request.session.get('current_match'), 'team' : request.session.get('team')})
 
+@login_required
 def team_lookup(request):
     if request.method == 'POST':
         form = TeamLookupForm(request.POST)
@@ -126,6 +204,7 @@ def team_lookup(request):
 
     return render(request, "scoutapp2018/team_lookup.html", {'form' : form})
 
+@login_required
 def team(request, team_number):
     cycle_times = CycleTime.objects.filter(team=team_number)
     autos = Auto.objects.filter(team=team_number)

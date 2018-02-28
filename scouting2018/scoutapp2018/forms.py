@@ -19,3 +19,12 @@ class TeamEntryForm(forms.Form):
 
 class TeamLookupForm(forms.Form):
     team_number = forms.CharField()
+
+class ScoutLogin(forms.Form):
+	username = forms.CharField(help_text="username", max_length=100, required = True)
+	password = forms.CharField(help_text="password", max_length=100, required = True)
+
+class ScoutRegister(forms.Form):
+    scout_name = forms.CharField(help_text="username", max_length=100, required = True)
+    scout_password = forms.CharField(help_text="password", max_length=100, required = True)
+    scout_email = forms.CharField(help_text="email", max_length=100, required = True)
