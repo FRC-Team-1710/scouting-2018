@@ -12,6 +12,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 
+import tbapy
+
 
 def index(request):
     context = {}
@@ -131,7 +133,7 @@ def team_select(request):
         request.session['team'] = current_match.red_three
         return HttpResponseRedirect('/scout/scout_auto/')
     else:
-        errors.append("Please Select a Team")
+        errors.append("Please Select a Team ")
 
     context = {'match_number' : request.session.get('current_match'), 'teams' : teams_in_match, 'errors' : errors, 'selected_teams' : teams_already_chosen}
     return render(request, "scoutapp2018/team_select.html", context)
@@ -189,6 +191,65 @@ def scout_teleop(request):
         form = TeleopForm()
 
     return render(request, "scoutapp2018/scout_teleop.html", {'form' : form, 'match_number' : request.session.get('current_match'), 'team' : request.session.get('team')})
+
+#thanks Corey!!!
+def load_match_list(request):
+    #use arkansas for testing but change to heartland later
+    event = "2016arlr"
+    tba = tbapy.TBA("jwEmVymeOvhRakjCQWJS4sE4GHxD4TBKhXVsgtTtqLPvODraEbRtYz3YlmhddAkD")
+    matchObjects = tba.event_matches(event, simple=True)
+    master_schedule = []
+
+    for match_ew in matchObjects:
+        # Create the match list
+        match = creatematchdata(match_ew)
+        matchlevel = getattr(match_ew, "comp_level")
+        if 'qm' not in matchlevel:
+            print matchlevel
+        else:
+            new_match = Match(match_number=match[0],
+                          blue_one=match[1],
+                          blue_two=match[2],
+                          blue_three=match[3],
+                          red_one=match[4],
+                          red_two=match[5],
+                          red_three=match[6])
+            new_match.save()
+
+            # Write out the data to a dictionary to be used
+            master_schedule.append(match)
+
+    return render(request, "scoutapp2018/load_match_list.html")
+
+def creatematchdata(matchtoeval):
+    blue = "blue"
+    red = "red"
+    teamKeys = "team_keys"
+
+    matchnumber = getattr(matchtoeval, "match_number")
+    # Set up alliance dictionaries
+    alliances = getattr(matchtoeval, "alliances")
+
+    # Get teams that play on each alliance. There is a better way to do this, I just don't know what it is.
+    blueteam1 = alliances[blue][teamKeys][0]
+    blueteam2 = alliances[blue][teamKeys][1]
+    blueteam3 = alliances[blue][teamKeys][2]
+    redteam1 = alliances[red][teamKeys][0]
+    redteam2 = alliances[red][teamKeys][1]
+    redteam3 = alliances[red][teamKeys][2]
+    # Trim teams down to just numbers since they are all formatted as 'frcXXXX'
+    b1number = blueteam1[3:]
+    b2number = blueteam2[3:]
+    b3number = blueteam3[3:]
+    r1number = redteam1[3:]
+    r2number = redteam2[3:]
+    r3number = redteam3[3:]
+
+    # Create a list for the data of each match
+    matchlist = [matchnumber, b1number, b2number, b3number,
+                 r1number, r2number, r3number]
+
+    return matchlist
 
 @login_required
 def team_lookup(request):
