@@ -2,8 +2,8 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm, ScoutRegister, ScoutLogin
-from scoutapp2018.models import CycleTime, Match, Auto
+from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm, ScoutRegister, ScoutLogin, EndGameForm
+from scoutapp2018.models import CycleTime, Match, Auto, EndGame
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import logout as django_logout
@@ -186,11 +186,29 @@ def scout_teleop(request):
                 new_cycle_time = CycleTime(time = cycle[0], team =request.session.get('team'), match=request.session.get('current_match'), location=cycle[1])
                 new_cycle_time.save()
 
-            return HttpResponseRedirect('/scout/')
+            return HttpResponseRedirect('/scout/scout_end')
     else:
         form = TeleopForm()
 
     return render(request, "scoutapp2018/scout_teleop.html", {'form' : form, 'match_number' : request.session.get('current_match'), 'team' : request.session.get('team')})
+
+@login_required
+def scout_end(request):
+    if request.method == 'POST':
+        form = EndGameForm(request.POST)
+        if form.is_valid():
+            new_end_game = EndGame(match=request.session.get('current_match'),
+                                   team=request.session.get('team'),
+                                   on_platform=form.cleaned_data['on_platform'],
+                                   climb_success=form.cleaned_data['climb_success'],
+                                   assist=form.cleaned_data['assist'])
+            new_end_game.save()
+            return HttpResponseRedirect('/scout/')
+    else:
+        form = EndGameForm()
+
+    context = {'form' : form}
+    return render(request, "scoutapp2018/scout_end.html", context)
 
 #thanks Corey!!!
 def load_match_list(request):
@@ -269,6 +287,7 @@ def team_lookup(request):
 def team(request, team_number):
     cycle_times = CycleTime.objects.filter(team=team_number)
     autos = Auto.objects.filter(team=team_number)
+    end_games = EndGame.objects.filter(team=team_number)
 
-    context = {'times': cycle_times, 'autos' : autos}
+    context = {'times': cycle_times, 'autos' : autos, 'end_games' : end_games}
     return render(request, "scoutapp2018/team.html", context)

@@ -11,6 +11,11 @@ class AutoForm(forms.Form):
     cubes_in_vault = forms.IntegerField(help_text= "Cubes in vault")
     cubes_dropped = forms.IntegerField(help_text= "Cubes dropped")
 
+class EndGameForm(forms.Form):
+    on_platform = forms.BooleanField(help_text="Are they on the platform?")
+    climb_success = forms.CharField(help_text="rate their success in climbing", max_length=1000, widget=forms.Select(choices=CLIMB_SUCCESS))
+    assist = forms.CharField(help_text="rate their ability to assist", max_length=1000, widget=forms.Select(choices=ASSIST))
+
 class MatchEntryForm(forms.Form):
     match_number = forms.IntegerField()
 

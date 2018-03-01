@@ -44,5 +44,23 @@
       {% endfor %}
     </table>
 
+    <h3>End Game</h3>
+    <table>
+      <tr>
+        <th>Match Number</th>
+        <th>Ended On Platform?</th>
+        <th>Climb Ability</th>
+        <th>Assist Ability</th>
+      </tr>
+      {% for end_game in end_games %}
+        <tr>
+          <td>{{end_game.match}}</td>
+          <td>{{end_game.on_platform}}</td>
+          <td>{{end_game.climb_success}}</td>
+          <td>{{end_game.assist}}</td>
+        </tr>
+      {% endfor %}
+    </table>
+
   </body>
 </html>
