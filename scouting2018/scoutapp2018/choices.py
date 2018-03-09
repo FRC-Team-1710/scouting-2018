@@ -12,7 +12,7 @@ CUBE_HANDLING_CHOICES = (
 
 CLIMB_SUCCESS = (
                     (u"succsessful", u"succsessful"),
-                    (u"assisted", u"assisted"),
+                    (u"carried by another team", u"carried by another team"),
                     (u"levitated", u"levitated"),
                     (u"fell", u"fell"),
                     (u"DNA", u"DNA")

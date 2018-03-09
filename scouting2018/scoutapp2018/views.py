@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm, ScoutRegister, ScoutLogin, EndGameForm
+from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm, ScoutRegister, ScoutLogin, EndGameForm, TeamMatchView
 from scoutapp2018.models import CycleTime, Match, Auto, EndGame
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
@@ -77,30 +77,34 @@ def match_entry(request):
 @login_required
 def team_select(request):
     match_number = request.session.get('current_match')
-    matches = Match.objects.order_by('match_number')
-    current_match = None
-    teams_in_match = []
+    current_match = Match.objects.filter(match_number=match_number)[0]
+    blue_teams = []
+    red_teams = []
     teams_already_chosen = []
     errors = []
-
-    for match in matches:
-        if match.match_number == match_number:
-            current_match = match
 
     scouts_in_match = [current_match.blue_one_scout,current_match.blue_two_scout,current_match.blue_three_scout,
                         current_match.red_one_scout, current_match.red_two_scout, current_match.red_three_scout]
 
-    teams_in_match.append(str(current_match.blue_one))
-    teams_in_match.append(str(current_match.blue_two))
-    teams_in_match.append(str(current_match.blue_three))
-    teams_in_match.append(str(current_match.red_one))
-    teams_in_match.append(str(current_match.red_two))
-    teams_in_match.append(str(current_match.red_three))
+    blue_teams.append(str(current_match.blue_one))
+    blue_teams.append(str(current_match.blue_two))
+    blue_teams.append(str(current_match.blue_three))
+    red_teams.append(str(current_match.red_one))
+    red_teams.append(str(current_match.red_two))
+    red_teams.append(str(current_match.red_three))
 
-    for idx,scout in enumerate(scouts_in_match):
-        if scout != 'none':
-            teams_already_chosen.append(teams_in_match[idx])
-            del teams_in_match[idx]
+    if scouts_in_match[0] != 'none':
+        teams_already_chosen.append(blue_teams[0])
+    if scouts_in_match[1] != 'none':
+        teams_already_chosen.append(blue_teams[1])
+    if scouts_in_match[2] != 'none':
+        teams_already_chosen.append(blue_teams[2])
+    if scouts_in_match[3] != 'none':
+        teams_already_chosen.append(red_teams[0])
+    if scouts_in_match[4] != 'none':
+        teams_already_chosen.append(red_teams[1])
+    if scouts_in_match[5] != 'none':
+        teams_already_chosen.append(red_teams[2])
 
     if str(current_match.blue_one) in request.POST and (current_match.blue_one_scout == 'none' or current_match.blue_one_scout == request.user.username):
         current_match.blue_one_scout = request.user.username
@@ -135,7 +139,7 @@ def team_select(request):
     else:
         errors.append("Please Select a Team ")
 
-    context = {'match_number' : request.session.get('current_match'), 'teams' : teams_in_match, 'errors' : errors, 'selected_teams' : teams_already_chosen}
+    context = {'match_number' : request.session.get('current_match'), 'blue_teams' : blue_teams, 'red_teams' : red_teams, 'errors' : errors, 'selected_teams' : teams_already_chosen}
     return render(request, "scoutapp2018/team_select.html", context)
 
 @login_required
@@ -289,5 +293,59 @@ def team(request, team_number):
     autos = Auto.objects.filter(team=team_number)
     end_games = EndGame.objects.filter(team=team_number)
 
-    context = {'times': cycle_times, 'autos' : autos, 'end_games' : end_games}
+    tele_cubes_in_switch = len(CycleTime.objects.filter(team=team_number).filter(location="Switch"))
+    tele_cubes_in_scale = len(CycleTime.objects.filter(team=team_number).filter(location="Scale"))
+    tele_cubes_dropped = len(CycleTime.objects.filter(team=team_number).filter(location="Drop"))
+    tele_cubes_in_exchange = len(CycleTime.objects.filter(team=team_number).filter(location="Exchange"))
+
+    switch_cycles = CycleTime.objects.filter(team=team_number).filter(location="Switch")
+    scale_cycles = CycleTime.objects.filter(team=team_number).filter(location="Scale")
+    exchange_cycles = CycleTime.objects.filter(team=team_number).filter(location="Exchange")
+
+    switch_times = []
+    scale_times = []
+    exchange_times = []
+
+    for cycle in switch_cycles:
+        switch_times.append(cycle.time)
+
+    for cycle in scale_cycles:
+        scale_times.append(cycle.time)
+
+    for cycle in exchange_cycles:
+        exchange_times.append(cycle.time)
+
+    avg_switch_time = sum(switch_times)/tele_cubes_in_switch
+    avg_scale_time = sum(scale_times)/tele_cubes_in_scale
+    avg_exchange_time = sum(exchange_times)/tele_cubes_in_exchange
+
+    if request.method == 'POST':
+        form = TeamMatchView(request.POST)
+
+        if form.is_valid():
+            match = form.cleaned_data['match_number']
+            cycle_times = CycleTime.objects.filter(team=team_number).filter(match=match)
+            autos = Auto.objects.filter(team=team_number).filter(match=match)
+            end_games = EndGame.objects.filter(team=team_number).filter(match=match)
+            tele_cubes_in_switch = len(CycleTime.objects.filter(team=team_number).filter(location="Switch").filter(match=match))
+            tele_cubes_in_scale = len(CycleTime.objects.filter(team=team_number).filter(location="Scale").filter(match=match))
+            tele_cubes_dropped = len(CycleTime.objects.filter(team=team_number).filter(location="Drop").filter(match=match))
+            tele_cubes_in_exchange = len(CycleTime.objects.filter(team=team_number).filter(location="Exchange").filter(match=match))
+    else:
+        form = TeamMatchView(request.POST)
+
+    climb_count = len(EndGame.objects.filter(team=team_number).filter(climb_success=u"succsessful"))
+    assisted_count = len(EndGame.objects.filter(team=team_number).filter(climb_success=u"carried by another team"))
+    levitate_count = len(EndGame.objects.filter(team=team_number).filter(climb_success=u"levitated"))
+    fall_count = len(EndGame.objects.filter(team=team_number).filter(climb_success=u"fell"))
+    no_attempt_count = len(EndGame.objects.filter(team=team_number).filter(climb_success=u"DNA"))
+
+    on_platform = len(EndGame.objects.filter(team=team_number).filter(on_platform=True))
+    not_on_platform = len(EndGame.objects.filter(team=team_number).filter(on_platform=False))
+
+    data_for_charts = [tele_cubes_in_switch, tele_cubes_in_scale, tele_cubes_dropped, tele_cubes_in_exchange, avg_switch_time,
+                       avg_scale_time, avg_exchange_time, climb_count, assisted_count, levitate_count, fall_count, no_attempt_count,
+                       on_platform, not_on_platform]
+
+    context = {'times': cycle_times, 'autos' : autos, 'end_games' : end_games, 'chart_data' : data_for_charts, "form" : form, "team" : team_number}
     return render(request, "scoutapp2018/team.html", context)

@@ -1,17 +1,29 @@
 <!DOCTYPE html>
 
 <html>
-  <head><title>Welcome</title></head>
+  <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome</title>
+  <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css">
+  </head>
   <body>
+  <div id="wrapper">
     <h1>Team 1710 Scouting</h1>
     {% if user != 42 %}
       <a href = "/scout/match_entry/">Start Scouting</a>
       <a href = "/scout/team_lookup/">Lookup Team</a>
-      <a href = "/scout/logout/">logout</a>
+      <a href = "/scout/logout/">Logout</a>
       <p>What's crackin' {{user.username}}???</p>
     {% else %}
       <a href = "/scout/scout_login/">Login</a>
       <a href = "/scout/scout_register/">Register</a>
     {% endif %}
+	</div>
+	<div id="deco">
+	<img src="../../static/scoutapp2018/assets/robo1.svg" />
+	<img src="../../static/scoutapp2018/assets/robo2.svg" />
+	<img src="../../static/scoutapp2018/assets/robo4.svg" />
+	<img src="../../static/scoutapp2018/assets/robo3.svg" />
+	</div>
   </body>
 </html>

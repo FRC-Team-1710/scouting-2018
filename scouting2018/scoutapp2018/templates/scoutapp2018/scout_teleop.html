@@ -1,14 +1,27 @@
 <!DOCTYPE html>
 
 <html>
-  <head><title>Teleop</title></head>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scout Teleop</title>
+    <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css">
+  </head>
   <body>
+  <div id="wrapper">
     <h1>Team {{team}} in match {{match_number}}</h1>
 
-    <input type="button" onclick="startTimer()" id="timer-start" value="Cube Picked Up"></input>
-    <input type="button" onclick="stopTimer('switch')" id="switch-place" value = "Switch" disabled></input>
-    <input type="button" onclick="stopTimer('scale')" id="scale-place" value = "Scale" disabled></input>
-    <input type="button" onclick="stopTimer('drop')" id="cube-dropped" value = "Dropped" disabled></input>
+    <div id="halfcolumn">
+      <input type="button" onclick="startTimer()" id="timer-start" value="Cube Picked Up"></input>
+    </div>
+
+    <div id="halfcolumn">
+      <input type="button" onclick="stopTimer('switch')" id="switch-place" value = "Switch" disabled></input>
+      <input type="button" onclick="stopTimer('scale')" id="scale-place" value = "Scale" disabled></input>
+      <input type="button" onclick="stopTimer('drop')" id="cube-dropped" value = "Dropped" disabled></input>
+      <input type="button" onclick="stopTimer('exchange')" id="cube-exchanged" value = "Exchanged" disabled></input>
+      <input type="button" onclick="stopTimer('end')" id="match-ended" value = "Match Ended" disabled></input>
+      <h3 id = "timer">Time: 0</h3>
+    </div>
 
     <script>
       var cubePickedUp = false;
@@ -17,11 +30,13 @@
       var switchPlaces = 0;
       var scalePlaces = 0;
       var cubeDrops = 0;
+      var exchanges = 0;
 
       var timerHandler;
 
       function startTimer() {
         timerHandler = setInterval(timer, 10);
+        cubePickedUp = true
       }
 
       function stopTimer(location) {
@@ -31,6 +46,11 @@
         } else if(location == "scale") {
           scalePlaces++;
           times.push(["Scale:" + scalePlaces, time]);
+        } else if(location == "exchange") {
+          exchanges++;
+          times.push(["Exchange:" + exchanges, time]);
+        } else if(location == "end") {
+          times.push(["End:" + exchanges, time]);
         } else {
           cubeDrops++;
           times.push(["Drop:" + cubeDrops, time]);
@@ -44,6 +64,8 @@
         document.getElementById("switch-place").disabled = true;
         document.getElementById("scale-place").disabled = true;
         document.getElementById("cube-dropped").disabled = true;
+        document.getElementById("cube-exchanged").disabled = true;
+        document.getElementById("match-ended").disabled = true;
       }
 
       function timer() {
@@ -55,13 +77,15 @@
           document.getElementById("switch-place").disabled = false;
           document.getElementById("scale-place").disabled = false;
           document.getElementById("cube-dropped").disabled = false;
+          document.getElementById("cube-exchanged").disabled = false;
+          document.getElementById("match-ended").disabled = false;
         }
       }
     </script>
 
-    <h3 id = "timer">Time: 0</h3>
     <h5 id = "time-list"></h5>
 
+  </div>
     <!--every time a cycle is clocked the JS can write to a form field... make the field hidden-->
 
     <form action="/scout/scout_teleop/" method="post">

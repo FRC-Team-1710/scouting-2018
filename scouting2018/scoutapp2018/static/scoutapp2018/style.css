@@ -1,3 +1,134 @@
+@font-face {
+font-family: Nougat;
+src: url(Nougat-ExtraBlack.ttf);
+}
+@font-face {
+font-family: Open Sans;
+src: url(OpenSans-Regular.ttf);
+}
+@font-face {
+font-family: Open Sans Italic;
+src: url(OpenSans-Italic.ttf);
+}
+@font-face {
+font-family: Open Sans Bold;
+src: url(OpenSans-SemiBold.ttf);
+}
 table, th, td {
 	border: 1px solid black;
+}
+h1 {
+	font-family: Nougat;
+	margin: 0;
+	text-align: center;
+	font-size: 3.5em;
+}
+body {
+	background-color: #222222;
+	margin: 0;
+	height: 100vh;
+	width: 100vw;
+}
+* {
+	color: #fefefe;
+}
+a {
+	 width: 100%;
+	 text-decoration: none;
+	 display: block;
+	 text-align: center;
+	 padding: 20px;
+	 box-sizing: border-box;
+	 font-family: Nougat;
+	 font-size: 1.5em;
+	 border: 5px #fefefe solid;
+	 margin-bottom: 20px;
+	 transition: .2s;
+}
+a:hover {
+	background-color: #0057a8;
+}
+p {
+	font-family: Open Sans;
+}
+#deco {
+	width:100vw;
+	height: 20%;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	overflow: hidden;
+}
+#deco img {
+	height: 50%;
+	position: absolute;
+	left: -15%;
+	bottom: 0;
+	animation: rocknroll 10s linear infinite;
+}
+#deco img:nth-child(1) {
+	animation: rocknroll 10s 2.5s linear infinite;
+}
+#deco img:nth-child(2) {
+	animation: rocknroll 10s 5s linear infinite;
+}
+#deco img:nth-child(3) {
+	animation: rocknroll 10s 7.5s linear infinite;
+}
+@keyframes rocknroll {
+	0%{
+		left: -15%;
+	}
+	48% {
+		bottom: 0px;
+	}
+	50% {
+		bottom:50%;
+	}
+	52% {
+		bottom: 0px;
+	}
+	100%{
+		left: 100%
+	}
+}
+#wrapper {
+	width: 95%;
+	margin: auto;
+	max-width: 800px;
+}
+input {
+	background-color: #222222;
+	font-family: Open Sans;
+	 border: 5px #fefefe solid;
+	 transition: .2s;
+}
+input:hover {
+	background-color: #0057a8;
+}
+#timer-start{
+	height: 74vh;
+	width: 100%;
+	font-size: 3em;
+	font-family: Open Sans Bold;
+}
+.halfcolumn {
+	width: 50%;
+	float: left;
+	position: relative;
+}
+#timer {
+	font-size: 2em;
+	font-family: Open Sans Bold;
+	position: absolute;
+	bottom: 20%;
+	text-align: center;
+	width: 100%;
+}
+#switch-place, #scale-place, #cube-dropped, #submitbutton, #cube-exchanged, #match-ended {
+	width: 95%;
+	height: 17vh;
+	margin-left: 5%;
+	margin-bottom: 2vh;
+	font-size: 2em;
 }

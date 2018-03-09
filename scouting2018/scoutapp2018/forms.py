@@ -12,7 +12,7 @@ class AutoForm(forms.Form):
     cubes_dropped = forms.IntegerField(help_text= "Cubes dropped")
 
 class EndGameForm(forms.Form):
-    on_platform = forms.BooleanField(help_text="Are they on the platform?")
+    on_platform = forms.BooleanField(help_text="Are they on the platform?", required = False)
     climb_success = forms.CharField(help_text="rate their success in climbing", max_length=1000, widget=forms.Select(choices=CLIMB_SUCCESS))
     assist = forms.CharField(help_text="rate their ability to assist", max_length=1000, widget=forms.Select(choices=ASSIST))
 
@@ -24,6 +24,9 @@ class TeamEntryForm(forms.Form):
 
 class TeamLookupForm(forms.Form):
     team_number = forms.CharField()
+
+class TeamMatchView(forms.Form):
+    match_number = forms.IntegerField()
 
 class ScoutLogin(forms.Form):
 	username = forms.CharField(help_text="username", max_length=100, required = True)

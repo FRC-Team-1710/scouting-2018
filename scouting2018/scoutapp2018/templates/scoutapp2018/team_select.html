@@ -1,18 +1,41 @@
 <!DOCTYPE html>
 
 <html>
-  <head><title>Welcome</title></head>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select A Team</title>
+    <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css">
+  </head>
+  {% load static %}
   <body>
     <h1>Teams In Match {{match_number}}</h1>
       <form action="/scout/team_select/" method="post">
       {% csrf_token %}
-      {% for team in teams %}
-        <input type="submit" name={{team}} value={{team}}>
-      {% endfor %}
+      <table>
+        <tr>
+          <th>Blue Teams</th>
+          <th>Red Teams</th>
+        </tr>
+        <tr>
+          <td><input type="submit" name={{blue_teams.0}} value={{blue_teams.0}}></td>
+          <td><input type="submit" name={{red_teams.0}} value={{red_teams.0}}></td>
+        </tr>
+        <tr>
+          <td><input type="submit" name={{blue_teams.1}} value={{blue_teams.1}}></td>
+          <td><input type="submit" name={{red_teams.1}} value={{red_teams.1}}></td>
+        </tr>
+        <tr>
+          <td><input type="submit" name={{blue_teams.2}} value={{blue_teams.2}}></td>
+          <td><input type="submit" name={{red_teams.2}} value={{red_teams.2}}></td>
+        </tr>
+      </table>
 
+      <h3>Teams already selected</h3>
+      <ul>
       {% for team in selected_teams %}
-        <input type="submit" name={{team}} value={{team}} disabled>
+        <li><input type="submit" name={{team}} value={{team}} disabled></li>
       {% endfor %}
+      </ul>
 
       {% for error in errors %}
         <h5 style="color:red">{{error}}</h5>

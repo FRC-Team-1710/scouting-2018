@@ -2,65 +2,165 @@
 
 <html>
   {% load static %}
-  <link type="text/css" rel="stylesheet" href="{% static 'scoutapp2018/style.css' %}" />
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css">
+  </head>
+  <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <body>
     <h1>Match data for team {{times.0.team}}</h1>
-
-    <h3>Teleop</h3>
-    <table>
-      <tr>
-        <th>Match Number</th>
-        <th>Cycle Time (seconds)</th>
-        <th>Cycle Location</th>
-      </tr>
-      {% for cycle in times %}
-        <tr>
-          <td>{{cycle.match}}</td>
-          <td>{{cycle.time}}</td>
-          <td>{{cycle.location}}</td>
-        </tr>
+    <form action="/scout/team/{{team}}/" method="post">
+      {% csrf_token %}
+      {% for field in form.visible_fields %}
+              {{ field.errors }}
+              {{ field.help_text }}<br />
+              {{field }}<br />
       {% endfor %}
-    </table>
+    <input type="submit" value="match" />
 
-    <h3>Auto</h3>
-    <table>
-      <tr>
-        <th>Match Number</th>
-        <th>Starting Position</th>
-        <th>Cubes in switch</th>
-        <th>Cubes in scale</th>
-        <th>Cubes in exchange</th>
-        <th>Cubes dropped</th>
-      </tr>
-      {% for auto in autos %}
+    <a id="table-toggle" href="#">hide/show tables</a>
+    <div id = "ugly-tables">
+      <h3>Teleop</h3>
+      <table>
         <tr>
-          <td>{{auto.match}}</td>
-          <td>{{auto.starting_position}}</td>
-          <td>{{auto.cubes_in_switch}}</td>
-          <td>{{auto.cubes_in_scale}}</td>
-          <td>{{auto.cubes_in_vault}}</td>
-          <td>{{auto.cubes_dropped}}</td>
+          <th>Match Number</th>
+          <th>Cycle Time (seconds)</th>
+          <th>Cycle Location</th>
         </tr>
-      {% endfor %}
-    </table>
+        {% for cycle in times %}
+          <tr>
+            <td>{{cycle.match}}</td>
+            <td>{{cycle.time}}</td>
+            <td>{{cycle.location}}</td>
+          </tr>
+        {% endfor %}
+      </table>
 
-    <h3>End Game</h3>
-    <table>
-      <tr>
-        <th>Match Number</th>
-        <th>Ended On Platform?</th>
-        <th>Climb Ability</th>
-        <th>Assist Ability</th>
-      </tr>
-      {% for end_game in end_games %}
+      <h3>Auto</h3>
+      <table>
         <tr>
-          <td>{{end_game.match}}</td>
-          <td>{{end_game.on_platform}}</td>
-          <td>{{end_game.climb_success}}</td>
-          <td>{{end_game.assist}}</td>
+          <th>Match Number</th>
+          <th>Starting Position</th>
+          <th>Cubes in switch</th>
+          <th>Cubes in scale</th>
+          <th>Cubes in exchange</th>
+          <th>Cubes dropped</th>
         </tr>
-      {% endfor %}
-    </table>
+        {% for auto in autos %}
+          <tr>
+            <td>{{auto.match}}</td>
+            <td>{{auto.starting_position}}</td>
+            <td>{{auto.cubes_in_switch}}</td>
+            <td>{{auto.cubes_in_scale}}</td>
+            <td>{{auto.cubes_in_vault}}</td>
+            <td>{{auto.cubes_dropped}}</td>
+          </tr>
+        {% endfor %}
+        </table>
 
+        <h3>End Game</h3>
+        <table>
+          <tr>
+            <th>Match Number</th>
+            <th>Ended On Platform?</th>
+            <th>Climb Ability</th>
+            <th>Assist Ability</th>
+          </tr>
+          {% for end_game in end_games %}
+            <tr>
+              <td>{{end_game.match}}</td>
+              <td>{{end_game.on_platform}}</td>
+              <td>{{end_game.climb_success}}</td>
+              <td>{{end_game.assist}}</td>
+            </tr>
+          {% endfor %}
+        </table>
+    </div>
+
+    <div id="cycle-distribution"></div>
+    <div id="cycle-averages"></div>
+    <div id="climbing"></div>
+
+  <script>
+    $(function() {
+      $( "#table-toggle" ).click(function() {
+        $( "#ugly-tables" ).toggle();
+      });
+    });
+  </script>
+  <script type="text/javascript">
+
+    // Load the Visualization API and the corechart package.
+    google.charts.load('current', {'packages':['corechart']});
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(drawChart);
+
+    // Callback that creates and populates a data table,
+    // instantiates the pie chart, passes in the data and
+    // draws it.
+    function drawChart() {
+
+      // Create the data table.
+      var cycle_count = new google.visualization.DataTable();
+      cycle_count.addColumn('string', 'Location');
+      cycle_count.addColumn('number', 'Cycles');
+      cycle_count.addRows([
+        ['Switch', {{chart_data.0}}],
+        ['Scale', {{chart_data.1}}],
+        ['Drops', {{chart_data.2}}],
+        ['Exchange', {{chart_data.3}}],
+      ]);
+
+      // Set chart options
+      var cycle_count_options = {'title':'Teleop Cycles for Team ' + {{times.0.team}},
+                     'width':500,
+                     'height':400};
+
+      // Instantiate and draw our chart, passing in some options.
+      var cycle_count_chart = new google.visualization.BarChart(document.getElementById('cycle-distribution'));
+      cycle_count_chart.draw(cycle_count, cycle_count_options);
+
+      var cycle_averages = new google.visualization.DataTable();
+      cycle_averages.addColumn('string', 'Location');
+      cycle_averages.addColumn('number', 'Time');
+      cycle_averages.addRows([
+        ['Switch', {{chart_data.4}}],
+        ['Scale', {{chart_data.5}}],
+        ['Exchange', {{chart_data.6}}],
+      ]);
+
+      // Set chart options
+      var cycle_average_options = {'title':'Average Cycle Times ' + {{times.0.team}},
+                     'width':500,
+                     'height':400};
+
+      // Instantiate and draw our chart, passing in some options.
+      var cycle_averages_chart = new google.visualization.BarChart(document.getElementById('cycle-averages'));
+      cycle_averages_chart.draw(cycle_averages, cycle_average_options);
+
+      var climbing = new google.visualization.DataTable();
+      climbing.addColumn('string', 'Climb State');
+      climbing.addColumn('number', 'Count');
+      climbing.addRows([
+        ['Successful', {{chart_data.7}}],
+        ['Assisted', {{chart_data.8}}],
+        ['Levitated', {{chart_data.9}}],
+        ['Fell', {{chart_data.10}}],
+        ['Not Attempted', {{chart_data.11}}],
+      ]);
+
+      // Set chart options
+      var climbing_options = {'title':'Average Cycle Times ' + {{times.0.team}},
+                     'width':500,
+                     'height':400};
+
+      // Instantiate and draw our chart, passing in some options.
+      var climbing_chart = new google.visualization.PieChart(document.getElementById('climbing'));
+      climbing_chart.draw(climbing, climbing_options);
+    }
+  </script>
   </body>
 </html>
