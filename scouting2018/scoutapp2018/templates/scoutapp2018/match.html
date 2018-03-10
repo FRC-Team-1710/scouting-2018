@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <title>Match {{match_number}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+
+  <body>
+    <table>
+      <tr>
+        <th>Blue one</th>
+        <th>Blue two</th>
+        <th>Blue three</th>
+        <th>Red one</th>
+        <th>Red two</th>
+        <th>Red three</th>
+      </tr>
+      <tr>
+        <td><a href="/scout/team/{{match.0.blue_one}}/">{{match.0.blue_one}}</td>
+        <td><a href="/scout/team/{{match.0.blue_two}}/">{{match.0.blue_two}}</td>
+        <td><a href="/scout/team/{{match.0.blue_three}}/">{{match.0.blue_three}}</td>
+        <td><a href="/scout/team/{{match.0.red_one}}/">{{match.0.red_one}}</td>
+        <td><a href="/scout/team/{{match.0.red_two}}/">{{match.0.red_two}}</td>
+        <td><a href="/scout/team/{{match.0.red_three}}/">{{match.0.red_three}}</td>
+      </tr>
+    </table>
+  </body>
+
+</html>

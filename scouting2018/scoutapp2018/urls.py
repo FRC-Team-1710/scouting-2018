@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^scout_teleop/$', views.scout_teleop, name='scout_teleop'),
     url(r'^scout_end/$', views.scout_end, name='scout_end'),
     url(r'^team_lookup/$', views.team_lookup, name='team_lookup'),
+    url(r'^match_lookup/$', views.match_lookup, name='match_lookup'),
     url(r'^load_match_list/$', views.load_match_list, name='load_match_list'),
     url(r'^team/(?P<team_number>[0-9999]+)/$', views.team, name='team'),
+    url(r'^match/(?P<match_number>[0-9999]+)/$', views.match, name='match'),
 ]

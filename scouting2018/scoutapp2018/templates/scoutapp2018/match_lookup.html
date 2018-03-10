@@ -1,0 +1,18 @@
+<html>
+	<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Lookup</title>
+  </head>
+  <body>
+    <form action="/scout/match_lookup/" method="post">
+      {% csrf_token %}
+      {% for field in form.visible_fields %}
+              {{ field.errors }}
+              {{ field.help_text }}<br />
+              {{field }}<br />
+      {% endfor %}
+    <input type="submit" value="search" />
+  </body>
+
+</html>

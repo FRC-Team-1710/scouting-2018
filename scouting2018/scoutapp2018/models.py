@@ -35,6 +35,7 @@ class Match(models.Model):
 class Auto(models.Model):
     match = models.IntegerField()
     team = models.IntegerField()
+    baseline_crossed = models.BooleanField(default = False)
     starting_position = models.CharField(max_length=10000, choices=AUTO_START_CHOICES)
     cubes_in_switch = models.IntegerField()
     cubes_in_scale = models.IntegerField()

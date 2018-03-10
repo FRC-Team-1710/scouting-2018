@@ -1,7 +1,7 @@
 AUTO_START_CHOICES = (
-                    (u"close", u"close"),
+                    (u"left", u"left"),
                     (u"middle", u"middle"),
-                    (u"far", u"far")
+                    (u"right", u"right")
 )
 
 CUBE_HANDLING_CHOICES = (
@@ -15,6 +15,7 @@ CLIMB_SUCCESS = (
                     (u"carried by another team", u"carried by another team"),
                     (u"levitated", u"levitated"),
                     (u"fell", u"fell"),
+                    (u"attempted but failed", u"attempted but failed"),
                     (u"DNA", u"DNA")
 )
 

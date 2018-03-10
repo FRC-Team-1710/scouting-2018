@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm, ScoutRegister, ScoutLogin, EndGameForm, TeamMatchView
+from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm, ScoutRegister, ScoutLogin, EndGameForm, TeamMatchView, MatchLookupForm
 from scoutapp2018.models import CycleTime, Match, Auto, EndGame
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
@@ -149,6 +149,7 @@ def scout_auto(request):
         if form.is_valid():
             new_auto = Auto(team=request.session.get('team'),
                             match=request.session.get('current_match'),
+                            baseline_crossed=form.cleaned_data['baseline_crossed'],
                             starting_position=form.cleaned_data['starting_position'],
                             cubes_in_switch=form.cleaned_data['cubes_in_switch'],
                             cubes_in_scale=form.cleaned_data['cubes_in_scale'],
@@ -217,7 +218,7 @@ def scout_end(request):
 #thanks Corey!!!
 def load_match_list(request):
     #use arkansas for testing but change to heartland later
-    event = "2016arlr"
+    event = "2018mokc2"
     tba = tbapy.TBA("jwEmVymeOvhRakjCQWJS4sE4GHxD4TBKhXVsgtTtqLPvODraEbRtYz3YlmhddAkD")
     matchObjects = tba.event_matches(event, simple=True)
     master_schedule = []
@@ -288,6 +289,24 @@ def team_lookup(request):
     return render(request, "scoutapp2018/team_lookup.html", {'form' : form})
 
 @login_required
+def match_lookup(request):
+    if request.method == "POST":
+        form = MatchLookupForm(request.POST)
+
+        if form.is_valid():
+            return match(request, form.cleaned_data['match_number'])
+    else:
+        form = MatchLookupForm()
+
+    return render(request, "scoutapp2018/match_lookup.html", {'form' : form})
+
+@login_required
+def match(request, match_number):
+    match = Match.objects.filter(match_number=match_number)
+    context = {'match_number' : match_number, 'match' : match}
+    return render(request, "scoutapp2018/match.html", context)
+
+@login_required
 def team(request, team_number):
     cycle_times = CycleTime.objects.filter(team=team_number)
     autos = Auto.objects.filter(team=team_number)
@@ -315,9 +334,18 @@ def team(request, team_number):
     for cycle in exchange_cycles:
         exchange_times.append(cycle.time)
 
-    avg_switch_time = sum(switch_times)/tele_cubes_in_switch
-    avg_scale_time = sum(scale_times)/tele_cubes_in_scale
-    avg_exchange_time = sum(exchange_times)/tele_cubes_in_exchange
+    avg_switch_time = 0
+    avg_scale_time = 0
+    avg_exchange_time = 0
+
+    if tele_cubes_in_switch != 0:
+        avg_switch_time = sum(switch_times)/tele_cubes_in_switch
+
+    if tele_cubes_in_scale != 0:
+        avg_scale_time = sum(scale_times)/tele_cubes_in_scale
+
+    if tele_cubes_in_exchange != 0:
+        avg_exchange_time = sum(exchange_times)/tele_cubes_in_exchange
 
     if request.method == 'POST':
         form = TeamMatchView(request.POST)
