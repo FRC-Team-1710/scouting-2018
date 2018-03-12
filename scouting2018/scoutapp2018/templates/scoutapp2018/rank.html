@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+
+    <body>
+	<h2>Teams that can put cubes in the scale during auto</h2>
+	<table>
+		<tr>
+			<th>Team</th>
+			<th>Match</th>
+			<th>Cubes In Scale</th>
+		</tr>
+	{% for auto in scale_auto %}
+		<tr>
+			<td><a href="/scout/team/{{auto.0}}">{{auto.0}}</a></td>
+			<td><a href="/scout/match/{{auto.2}}">{{auto.2}}</a></td>
+			<td>{{auto.1}}</td>
+		</tr> 
+	{% endfor %}
+	</table>	
+	<h2>Teams with multiple cube autos</h2>
+	<table>
+		<tr>
+			<th>Team</th>
+			<th>Match</th>
+		<tr>
+	{% for auto in mult_cube_autos %}
+		<tr>
+			<td><a href="/scout/team/{{auto.0}}">{{auto.0}}</a></td>
+			<td><a href="/scout/match/{{auto.1}}">{{auto.1}}</a></td>
+		</tr>
+	{% endfor %}
+	</table>
+        <h2>Auto cube place success rate</h2>
+	<table>
+		<tr>
+			<th>Team</th>
+			<th>Success%</th>
+		</tr>
+	{% for perc in auto_success_percent %}
+		<tr>
+			<th>{{perc.0}}</th>
+			<th>{{perc.1}}</th>
+		</tr>
+	{% endfor %}
+	</table>
+    </body>
+
+</html>

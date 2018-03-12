@@ -25,7 +25,7 @@ SECRET_KEY = '3ji02-%8j053sjsmv#pyr*4y4qol!t5lbs3o!18s40f+op3l0_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [u'73.185.212.215', u'10.0.0.150', u'127.0.0.1']
+ALLOWED_HOSTS = [u'159.65.231.58', u'127.0.0.1']
 
 
 # Application definition
@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'scoutapp2018'
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

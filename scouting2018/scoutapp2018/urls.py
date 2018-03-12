@@ -4,6 +4,10 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^view_rank/$', views.view_rank, name='view_rank'),
+    url(r'^download_raw_auto/$', views.download_raw_auto, name='download_raw_auto'),
+    url(r'^download_raw_cycles/$', views.download_raw_cycles, name='download_raw_cycles'),
+    url(r'^download_raw_end_game/$', views.download_raw_end_game, name='download_raw_end_game'),
     url(r'^match_entry/$', views.match_entry, name='match_entry'),
     url(r'^team_select/$', views.team_select, name='team_select'),
     url(r'^scout_auto/$', views.scout_auto, name='scout_auto'),

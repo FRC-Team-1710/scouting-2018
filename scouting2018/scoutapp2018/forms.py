@@ -1,6 +1,9 @@
 from django import forms
 from scoutapp2018.choices import *
 
+class TeamRank(forms.Form):
+    rank = forms.CharField(help_text="rank teams by", required = True, widget=forms.Select(choices = RANKING))
+
 class TeleopForm(forms.Form):
     times = forms.CharField(max_length = 10000)
 

@@ -2,103 +2,24 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm, ScoutRegister, ScoutLogin, EndGameForm, TeamMatchView, MatchLookupForm
+from scoutapp2018.forms import TeleopForm, MatchEntryForm, TeamLookupForm, AutoForm, ScoutRegister, ScoutLogin, EndGameForm, TeamMatchView, MatchLookupForm, TeamRankForm
 from scoutapp2018.models import CycleTime, Match, Auto, EndGame
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import logout as django_logout
-import csv
+
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 
 import tbapy
 
-def view_rank(request):
-    autos = Auto.objects.order_by('cubes_in_scale')
-    autos_success = Auto.objects.order_by('team')
-    teams_with_cube_in_scale = []
-    teams_with_multiple_cube_autos = []
-    teams = []
-    auto_success_percent = []
-    for auto in autos:
-    	if auto.cubes_in_scale > 0:
-	    teams_with_cube_in_scale.append([str(auto.team),str(auto.cubes_in_scale),str(auto.match)])
-
-    for auto in autos:
-        if auto.cubes_in_scale > 1 or (auto.cubes_in_switch > 1) or (auto.cubes_in_switch > 0 and auto.cubes_in_scale > 0):
-            teams_with_multiple_cube_autos.append([str(auto.team), str(auto.match)])
-
-    last_team = 0
-
-    for auto in autos_success:
-        team = auto.team
-        if team != last_team:
-            teams.append(team)
-        last_team = team
-
-    for team in teams:
-        team_autos = autos_success.filter(team=team)
-        successful = 0
-        total = 0
-        for auto in team_autos:
-            if auto.cubes_in_switch > 0 or auto.cubes_in_scale > 0:
-                successful += 1
-		total += 1
-            else:
-                total += 1
-        if total > 0:
-            auto_success_percent.append([team, (successful/total)])
-        else:
-            auto_success_percent.append([team, "DNA"])
-
-    context = {'scale_auto': teams_with_cube_in_scale,
-	 'mult_cube_autos': teams_with_multiple_cube_autos,
-	 'auto_success_percent' : auto_success_percent}
-    return render(request, "scoutapp2018/rank.html", context)
-
-def download_raw_auto(request):
-    response_auto = HttpResponse(content_type='text/csv')
-    response_auto['Content-Disposition'] = 'attachment; filename="kc_raw_auto.csv"'
-    writer_auto = csv.writer(response_auto)
-
-    autos = Auto.objects.order_by('match')
-
-    writer_auto.writerow(['Match', 'Team', 'Baseline Crossed?', 'starting pos', 'cubes in switch',
-			'cubes in scale', 'cubes in vault', 'cubes dropped'])
-    for auto in autos:
-        writer_auto.writerow([auto.match, auto.team, auto.baseline_crossed, auto.starting_position,
-				 auto.cubes_in_switch, auto.cubes_in_scale, auto.cubes_in_vault,
-				 auto.cubes_dropped])
-    return response_auto
-
-def download_raw_cycles(request):
-    response_cycle = HttpResponse(content_type='text/csv')
-    response_cycle['Content-Disposition'] = 'attachment; filename="kc_raw_cycle.csv"'
- 
-    writer_cycle = csv.writer(response_cycle)
-
-    writer_cycle.writerow(['Match', 'Team', 'location', 'time'])
-    cycles = CycleTime.objects.order_by('match')
-
-    for cycle in cycles:
-        writer_cycle.writerow([cycle.match, cycle.team, cycle.location, cycle.time]) 
-
-    return response_cycle
-
-def download_raw_end_game(request):
-    response_end = HttpResponse(content_type='text/csv')
-    response_end['Content-Disposition'] = 'attachment; filename="kc_raw_end.csv"'
- 
-    writer_end = csv.writer(response_end)
-
-    writer_end.writerow(['Match', 'Team', 'on platform', 'success', 'assist'])
-    endgames = EndGame.objects.order_by('match')
-
-    for end in endgames:
-        writer_end.writerow([end.match, end.team, end.on_platform, end.assist]) 
-
-    return response_end
+def download_raw(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="kc_raw.csv"'
+    writer = csv.writer(response)
+    Autos = Auto.objects
+    return HttpResponse("hey")
 
 def index(request):
     context = {}
@@ -372,6 +293,21 @@ def team_lookup(request):
         form = TeamLookupForm()
 
     return render(request, "scoutapp2018/team_lookup.html", {'form' : form})
+
+@login_required
+def team_ranking(request):
+    if request.method == 'POST':
+	form = TeamRankForm(request.POST)
+
+	if form.is_valid():
+	    ranking = form.cleaned_data['ranking']
+
+    else:
+	form = TeamRankForm()
+
+    context = {}
+
+    return render(request, "scoutapp2018/team_ranking", context)
 
 @login_required
 def match_lookup(request):

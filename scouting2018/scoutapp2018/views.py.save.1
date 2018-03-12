@@ -1,3 +1,5 @@
+
+
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
@@ -14,48 +16,15 @@ from django.contrib.auth.decorators import login_required
 
 import tbapy
 
-def view_rank(request):
-    autos = Auto.objects.order_by('cubes_in_scale')
-    autos_success = Auto.objects.order_by('team')
-    teams_with_cube_in_scale = []
-    teams_with_multiple_cube_autos = []
-    teams = []
-    auto_success_percent = []
-    for auto in autos:
-    	if auto.cubes_in_scale > 0:
-	    teams_with_cube_in_scale.append([str(auto.team),str(auto.cubes_in_scale),str(auto.match)])
+def rank(request):
+    if request.method == 'POST':
+	form = TeamRank(request.POST)
 
-    for auto in autos:
-        if auto.cubes_in_scale > 1 or (auto.cubes_in_switch > 1) or (auto.cubes_in_switch > 0 and auto.cubes_in_scale > 0):
-            teams_with_multiple_cube_autos.append([str(auto.team), str(auto.match)])
-
-    last_team = 0
-
-    for auto in autos_success:
-        team = auto.team
-        if team != last_team:
-            teams.append(team)
-        last_team = team
-
-    for team in teams:
-        team_autos = autos_success.filter(team=team)
-        successful = 0
-        total = 0
-        for auto in team_autos:
-            if auto.cubes_in_switch > 0 or auto.cubes_in_scale > 0:
-                successful += 1
-		total += 1
-            else:
-                total += 1
-        if total > 0:
-            auto_success_percent.append([team, (successful/total)])
-        else:
-            auto_success_percent.append([team, "DNA"])
-
-    context = {'scale_auto': teams_with_cube_in_scale,
-	 'mult_cube_autos': teams_with_multiple_cube_autos,
-	 'auto_success_percent' : auto_success_percent}
-    return render(request, "scoutapp2018/rank.html", context)
+        if form.is_valid():
+	    return view_rank(request, 0)
+    else:
+        form = TeamRank()
+    return HttpResponse("hey")
 
 def download_raw_auto(request):
     response_auto = HttpResponse(content_type='text/csv')
@@ -85,20 +54,6 @@ def download_raw_cycles(request):
         writer_cycle.writerow([cycle.match, cycle.team, cycle.location, cycle.time]) 
 
     return response_cycle
-
-def download_raw_end_game(request):
-    response_end = HttpResponse(content_type='text/csv')
-    response_end['Content-Disposition'] = 'attachment; filename="kc_raw_end.csv"'
- 
-    writer_end = csv.writer(response_end)
-
-    writer_end.writerow(['Match', 'Team', 'on platform', 'success', 'assist'])
-    endgames = EndGame.objects.order_by('match')
-
-    for end in endgames:
-        writer_end.writerow([end.match, end.team, end.on_platform, end.assist]) 
-
-    return response_end
 
 def index(request):
     context = {}

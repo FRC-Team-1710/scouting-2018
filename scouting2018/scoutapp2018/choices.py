@@ -1,3 +1,7 @@
+RANKING = (
+		(u"auto success", u"auto success"),
+)
+
 AUTO_START_CHOICES = (
                     (u"left", u"left"),
                     (u"middle", u"middle"),
