@@ -15,12 +15,19 @@ from django.contrib.auth.decorators import login_required
 import tbapy
 
 def view_rank(request):
+    #make a bunch of links at the top of the page and if you click on one it'll scroll you down to a table (using # in the url)
     autos = Auto.objects.order_by('cubes_in_scale')
     autos_success = Auto.objects.order_by('team')
+    cycles = CycleTime.objects.order_by('team')
     teams_with_cube_in_scale = []
     teams_with_multiple_cube_autos = []
     teams = []
     auto_success_percent = []
+    baseline_cross_success = []
+    teleop_best_scale_match = []
+    teleop_best_switch_match = []
+    teleop_best_switch_block_match = []
+
     for auto in autos:
     	if auto.cubes_in_scale > 0:
 	    teams_with_cube_in_scale.append([str(auto.team),str(auto.cubes_in_scale),str(auto.match)])
@@ -44,17 +51,103 @@ def view_rank(request):
         for auto in team_autos:
             if auto.cubes_in_switch > 0 or auto.cubes_in_scale > 0:
                 successful += 1
-		total += 1
-            else:
-                total += 1
+            total += 1
+        if total > 0 and successful > 0:
+            auto_success_percent.append([team, round((float(successful)/float(total)), 3) * 100])
+
+    auto_success_percent = sorted(auto_success_percent, key=lambda l:l[1], reverse=True)
+
+    for team in teams:
+        team_autos = autos.filter(team=team)
+
+        successful = 0
+        total = 0
+
+        for auto in team_autos:
+            if auto.baseline_crossed == True:
+                successful += 1
+            total+=1
         if total > 0:
-            auto_success_percent.append([team, (successful/total)])
-        else:
-            auto_success_percent.append([team, "DNA"])
+            baseline_cross_success.append([team, round((float(successful)/float(total)), 3) * 100])
+
+    baseline_cross_success = sorted(baseline_cross_success, key=lambda l:l[1], reverse=True)
+
+    for team in teams:
+        matches_played_by_team = []
+        scale_cycles_by_match = []
+        team_scale_cycles = cycles.filter(team=team).filter(location="Scale")
+        last_match = 0
+        for cycle in team_scale_cycles:
+            match = cycle.match
+
+            if match != last_match:
+                matches_played_by_team.append(match)
+
+            last_match = cycle.match
+
+        for match in matches_played_by_team:
+            team_scale_cycles = len(cycles.filter(team=team).filter(location="Scale").filter(match=match))
+            scale_cycles_by_match.append([team_scale_cycles, match])
+
+        scale_cycles_by_match = sorted(scale_cycles_by_match, key=lambda l:l[0], reverse=True)
+        if len(scale_cycles_by_match) > 0:
+            teleop_best_scale_match.append([team, scale_cycles_by_match[0][1], scale_cycles_by_match[0][0]])
+
+    teleop_best_scale_match = sorted(teleop_best_scale_match, key=lambda l:l[2], reverse=True)
+
+    for team in teams:
+        matches_played_by_team = []
+        switch_cycles_by_match = []
+        team_switch_cycles = cycles.filter(team=team).filter(location="Switch")
+        last_match = 0
+        for cycle in team_switch_cycles:
+            match = cycle.match
+
+            if match != last_match:
+                matches_played_by_team.append(match)
+
+            last_match = cycle.match
+
+        for match in matches_played_by_team:
+            team_switch_cycles = len(cycles.filter(team=team).filter(location="Switch").filter(match=match))
+            switch_cycles_by_match.append([team_switch_cycles, match])
+
+        switch_cycles_by_match = sorted(switch_cycles_by_match, key=lambda l:l[0], reverse=True)
+        if len(switch_cycles_by_match) > 0:
+            teleop_best_switch_match.append([team, switch_cycles_by_match[0][1], switch_cycles_by_match[0][0]])
+
+    teleop_best_switch_match = sorted(teleop_best_switch_match, key=lambda l:l[2], reverse=True)
+
+    for team in teams:
+        matches_played_by_team = []
+        switch_blocks_by_match = []
+        opp_switch_cycles = cycles.filter(team=team).filter(location="Opp-Switch")
+        last_match = 0
+        for cycle in opp_switch_cycles:
+            match = cycle.match
+
+            if match != last_match:
+                matches_played_by_team.append(match)
+
+            last_match = cycle.match
+
+        for match in matches_played_by_team:
+            opp_switch_cycles = len(cycles.filter(team=team).filter(location="Opp-Switch").filter(match=match))
+            switch_blocks_by_match.append([opp_switch_cycles, match])
+
+        switch_blocks_by_match = sorted(switch_blocks_by_match, key=lambda l:l[0], reverse=True)
+        if len(switch_blocks_by_match) > 0:
+            teleop_best_switch_block_match.append([team, switch_blocks_by_match[0][1], switch_blocks_by_match[0][0]])
+
+    teleop_best_switch_block_match = sorted(teleop_best_switch_block_match, key=lambda l:l[2], reverse=True)
 
     context = {'scale_auto': teams_with_cube_in_scale,
 	 'mult_cube_autos': teams_with_multiple_cube_autos,
-	 'auto_success_percent' : auto_success_percent}
+	 'auto_success_percent' : auto_success_percent,
+     'baseline_success_percent' : baseline_cross_success,
+     'best_scale_matches' : teleop_best_scale_match,
+     'best_switch_matches' : teleop_best_switch_match,
+     'best_switch_blocks' : teleop_best_switch_block_match}
     return render(request, "scoutapp2018/rank.html", context)
 
 def download_raw_auto(request):
@@ -75,28 +168,28 @@ def download_raw_auto(request):
 def download_raw_cycles(request):
     response_cycle = HttpResponse(content_type='text/csv')
     response_cycle['Content-Disposition'] = 'attachment; filename="kc_raw_cycle.csv"'
- 
+
     writer_cycle = csv.writer(response_cycle)
 
     writer_cycle.writerow(['Match', 'Team', 'location', 'time'])
     cycles = CycleTime.objects.order_by('match')
 
     for cycle in cycles:
-        writer_cycle.writerow([cycle.match, cycle.team, cycle.location, cycle.time]) 
+        writer_cycle.writerow([cycle.match, cycle.team, cycle.location, cycle.time])
 
     return response_cycle
 
 def download_raw_end_game(request):
     response_end = HttpResponse(content_type='text/csv')
     response_end['Content-Disposition'] = 'attachment; filename="kc_raw_end.csv"'
- 
+
     writer_end = csv.writer(response_end)
 
     writer_end.writerow(['Match', 'Team', 'on platform', 'success', 'assist'])
     endgames = EndGame.objects.order_by('match')
 
     for end in endgames:
-        writer_end.writerow([end.match, end.team, end.on_platform, end.assist]) 
+        writer_end.writerow([end.match, end.team, end.on_platform, end.assist])
 
     return response_end
 
@@ -401,6 +494,7 @@ def team(request, team_number):
     tele_cubes_in_scale = len(CycleTime.objects.filter(team=team_number).filter(location="Scale"))
     tele_cubes_dropped = len(CycleTime.objects.filter(team=team_number).filter(location="Drop"))
     tele_cubes_in_exchange = len(CycleTime.objects.filter(team=team_number).filter(location="Exchange"))
+    tele_cubes_in_opp_switch = len(CycleTime.objects.filter(team=team_number).filter(location="Opp-Switch"))
 
     switch_cycles = CycleTime.objects.filter(team=team_number).filter(location="Switch")
     scale_cycles = CycleTime.objects.filter(team=team_number).filter(location="Scale")
@@ -458,7 +552,7 @@ def team(request, team_number):
 
     data_for_charts = [tele_cubes_in_switch, tele_cubes_in_scale, tele_cubes_dropped, tele_cubes_in_exchange, avg_switch_time,
                        avg_scale_time, avg_exchange_time, climb_count, assisted_count, levitate_count, fall_count, no_attempt_count,
-                       on_platform, not_on_platform]
+                       on_platform, not_on_platform, tele_cubes_in_opp_switch]
 
     context = {'times': cycle_times, 'autos' : autos, 'end_games' : end_games, 'chart_data' : data_for_charts, "form" : form, "team" : team_number}
     return render(request, "scoutapp2018/team.html", context)

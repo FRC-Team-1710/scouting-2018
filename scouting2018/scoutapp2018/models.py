@@ -42,9 +42,16 @@ class Auto(models.Model):
     cubes_in_vault = models.IntegerField()
     cubes_dropped = models.IntegerField()
 
+    def __unicode__(self):
+        return 'Match: ' + str(self.match) + ' Team: ' + str(self.team)
+
 class EndGame(models.Model):
     match = models.IntegerField()
     team = models.IntegerField()
     on_platform = models.BooleanField()
     climb_success = models.CharField(max_length=1000, choices=CLIMB_SUCCESS)
     assist = models.CharField(max_length=1000, choices=ASSIST)
+
+class Team(models.Model):
+    team_number = models.IntegerField()
+    is_picked = models.BooleanField()

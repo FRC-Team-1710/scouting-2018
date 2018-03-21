@@ -7,8 +7,18 @@
         <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
 
-    <body>
-	<h2>Teams that can put cubes in the scale during auto</h2>
+  <body>
+
+  <div id="top">
+    <a href="#auto_scale">View Teams That Have Scale Autos</a>
+    <a href="#auto_success">Rank Teams By Auto Success Rate</a>
+    <a href="#baseline_success">Rank Teams By Baseline Crossing Rate</a>
+    <a href="#best_scale_match">Rank Teams By Best Scale Match</a>
+    <a href="#best_switch_match">Rank Teams By Best Switch Match</a>
+    <a href="#best_switch_blocks">Rank Teams By Most Cycles into their Opponent's Switch </a>
+  </div>
+
+	<h2 id="auto_scale">Teams that can put cubes in the scale during auto</h2>
 	<table>
 		<tr>
 			<th>Team</th>
@@ -20,9 +30,9 @@
 			<td><a href="/scout/team/{{auto.0}}">{{auto.0}}</a></td>
 			<td><a href="/scout/match/{{auto.2}}">{{auto.2}}</a></td>
 			<td>{{auto.1}}</td>
-		</tr> 
+		</tr>
 	{% endfor %}
-	</table>	
+	</table>
 	<h2>Teams with multiple cube autos</h2>
 	<table>
 		<tr>
@@ -36,7 +46,8 @@
 		</tr>
 	{% endfor %}
 	</table>
-        <h2>Auto cube place success rate</h2>
+
+  <h2 id="auto_success">Auto cube place success rate</h2>
 	<table>
 		<tr>
 			<th>Team</th>
@@ -44,11 +55,99 @@
 		</tr>
 	{% for perc in auto_success_percent %}
 		<tr>
-			<th>{{perc.0}}</th>
-			<th>{{perc.1}}</th>
+      {% if perc.1 >= 80 %}
+      <tr style="background-color:green">
+        <td><a href="/scout/team/{{perc.0}}">{{perc.0}}</a></td>
+        <td>{{perc.1}}</td>
+      </tr>
+      {% elif perc.1 >= 50 and perc.1 < 80 %}
+      <tr style="background-color:#e08531">
+        <td><a href="/scout/team/{{perc.0}}">{{perc.0}}</a></td>
+        <td>{{perc.1}}</td>
+      </tr>
+      {% else %}
+      <tr style="background-color:red">
+        <td><a href="/scout/team/{{perc.0}}">{{perc.0}}</a></td>
+        <td>{{perc.1}}</td>
+      </tr>
+      {% endif %}
 		</tr>
 	{% endfor %}
 	</table>
+
+  <h2 id="baseline_success">Baseline Cross Success</h2>
+  <table>
+    <tr>
+      <th>Team</th>
+      <th>Success%</th>
+    </tr>
+    {% for perc in baseline_success_percent %}
+      {% if perc.1 >= 80 %}
+      <tr style="background-color:green">
+        <td><a href="/scout/team/{{perc.0}}">{{perc.0}}</a></td>
+        <td>{{perc.1}}</td>
+      </tr>
+      {% elif perc.1 >= 50 and perc.1 < 80 %}
+      <tr style="background-color:#e08531">
+        <td><a href="/scout/team/{{perc.0}}">{{perc.0}}</a></td>
+        <td>{{perc.1}}</td>
+      </tr>
+      {% else %}
+      <tr style="background-color:red">
+        <td><a href="/scout/team/{{perc.0}}">{{perc.0}}</a></td>
+        <td>{{perc.1}}</td>
+      </tr>
+      {% endif %}
+    {% endfor %}
+  </table>
+
+  <h2 id="best_scale_match">Best Scale Match Per Team</h2>
+  <table>
+    <tr>
+      <th>Team</th>
+      <th>Match</th>
+      <th>Scale Cycles</th>
+    </tr>
+    {% for cycle in best_scale_matches %}
+    <tr>
+      <td><a href="/scout/team/{{cycle.0}}">{{cycle.0}}</a></td>
+      <td><a href="/scout/match/{{cycle.1}}">{{cycle.1}}</a></td>
+      <td>{{cycle.2}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2 id="best_switch_match">Best Switch Match Per Team</h2>
+  <table>
+    <tr>
+      <th>Team</th>
+      <th>Match</th>
+      <th>Switch Cycles</th>
+    </tr>
+    {% for cycle in best_switch_matches %}
+    <tr>
+      <td><a href="/scout/team/{{cycle.0}}">{{cycle.0}}</a></td>
+      <td><a href="/scout/match/{{cycle.1}}">{{cycle.1}}</a></td>
+      <td>{{cycle.2}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2 id="best_switch_blocks">Best Cycles To Opponent's Switch Match Per Team</h2>
+  <table>
+    <tr>
+      <th>Team</th>
+      <th>Match</th>
+      <th>Cycles To Opponent's Switch</th>
+    </tr>
+    {% for cycle in best_switch_blocks %}
+    <tr>
+      <td><a href="/scout/team/{{cycle.0}}">{{cycle.0}}</a></td>
+      <td><a href="/scout/match/{{cycle.1}}">{{cycle.1}}</a></td>
+      <td>{{cycle.2}}</td>
+    </tr>
+    {% endfor %}
+  </table>
     </body>
 
 </html>

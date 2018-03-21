@@ -9,6 +9,7 @@
   </head>
 
   <body>
+    
     <form action="/scout/scout_auto/" method="post">
       {% csrf_token %}
       {% for field in form.visible_fields %}

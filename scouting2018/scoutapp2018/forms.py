@@ -10,10 +10,10 @@ class TeleopForm(forms.Form):
 class AutoForm(forms.Form):
     baseline_crossed = forms.BooleanField(help_text="Did they cross the baseline?", required = False)
     starting_position = forms.CharField(help_text= "Starting Position", max_length = 10000, widget=forms.Select(choices=AUTO_START_CHOICES))
-    cubes_in_switch = forms.IntegerField(help_text= "Cubes in switch")
-    cubes_in_scale = forms.IntegerField(help_text= "Cubes in scale")
-    cubes_in_vault = forms.IntegerField(help_text= "Cubes in vault")
-    cubes_dropped = forms.IntegerField(help_text= "Cubes dropped")
+    cubes_in_switch = forms.IntegerField(help_text= "Cubes in switch", initial=0)
+    cubes_in_scale = forms.IntegerField(help_text= "Cubes in scale", initial=0)
+    cubes_in_vault = forms.IntegerField(help_text= "Cubes in vault", initial=0)
+    cubes_dropped = forms.IntegerField(help_text= "Cubes dropped", initial=0)
 
 class MatchLookupForm(forms.Form):
     match_number = forms.CharField(help_text="Enter Match Number", max_length=1000)
