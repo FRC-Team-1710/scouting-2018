@@ -14,6 +14,13 @@ from django.contrib.auth.decorators import login_required
 
 import tbapy
 
+def master_delete(request):
+    CycleTime.objects.order_by('team').delete()
+    Match.objects.order_by('team').delete()
+    Auto.objects.order_by('team').delete()
+    EndGame.objects.order_by('team').delete()
+    return HttpResponse("hey")
+
 def view_rank(request):
     #make a bunch of links at the top of the page and if you click on one it'll scroll you down to a table (using # in the url)
     autos = Auto.objects.order_by('cubes_in_scale')
