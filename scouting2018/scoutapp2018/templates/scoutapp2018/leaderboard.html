@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scout Leaderboard</title>
+    <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css">
+  </head>
+
+  <body>
+    <table>
+      <tr>
+        <th>Scout Name</th>
+        <th>Matches Scouted</th>
+      <tr>
+      {% for scout in scouts %}
+      <tr>
+        <td>{{scout.0}}</td>
+        <td>{{scout.1}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+
+</html>

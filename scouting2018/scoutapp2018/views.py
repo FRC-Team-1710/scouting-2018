@@ -201,6 +201,29 @@ def index(request):
         context = {'user' : 42}
     return render(request, "scoutapp2018/index.html", context)
 
+def scout_leaderboard(request):
+    scout_list = []
+    users = User.objects.order_by('username')
+    scouts_matches = []
+    matches = Match.objects.order_by('match_number')
+
+    for user in users:
+        scout_list.append(user.username)
+
+    for scout in scout_list:
+        r_one = len(matches.filter(red_one_scout=scout))
+        r_two = len(matches.filter(red_two_scout=scout))
+        r_three = len(matches.filter(red_three_scout=scout))
+        b_one = len(matches.filter(blue_one_scout=scout))
+        b_two = len(matches.filter(blue_two_scout=scout))
+        b_three = len(matches.filter(blue_three_scout=scout))
+        total_scouted = r_one + r_two + r_three + b_one + b_two + b_three
+        scouts_matches.append([scout, total_scouted])
+
+    scouts_matches = sorted(scouts_matches, key=lambda l:l[1], reverse=True)
+
+    return render(request, "scoutapp2018/leaderboard.html", {'scouts' : scouts_matches})
+
 def scout_register(request):
 	if request.method == 'POST':
 		form = ScoutRegister(request.POST)

@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^scout_auto/$', views.scout_auto, name='scout_auto'),
     url(r'^scout_login/$', views.scout_login, name='scout_login'),
     url(r'^logout/$', views.logout, name='logout'),
+    url(r'^leaderboard/$', views.scout_leaderboard, name='leaderboard'),
     url(r'^scout_register/$', views.scout_register, name='scout_register'),
     url(r'^scout_teleop/$', views.scout_teleop, name='scout_teleop'),
     url(r'^scout_end/$', views.scout_end, name='scout_end'),

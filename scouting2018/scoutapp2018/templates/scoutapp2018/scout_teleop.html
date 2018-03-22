@@ -4,25 +4,27 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scout Teleop</title>
-    <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css">
+    <link rel="stylesheet" type="text/css" href="../../static/scoutapp2018/style.css?rand=2222">
   </head>
   <body>
   <div id="wrapper">
     <h1>Team {{team}} in match {{match_number}}</h1>
 
-    <div id="halfcolumn">
-      <input type="button" onclick="startTimer()" id="timer-start" value="Cube Picked Up"></input>
-    </div>
-
-    <div id="halfcolumn">
-      <input type="button" onclick="stopTimer('switch')" id="switch-place" value = "Switch" disabled></input>
-      <input type="button" onclick="stopTimer('scale')" id="scale-place" value = "Scale" disabled></input>
-      <input type="button" onclick="stopTimer('drop')" id="cube-dropped" value = "Dropped" disabled></input>
-      <input type="button" onclick="stopTimer('opp_switch')" id="switch_blocked" value = "Opponent's Switch" disabled></input>
-      <input type="button" onclick="stopTimer('exchange')" id="cube-exchanged" value = "Exchanged" disabled></input>
-      <input type="button" onclick="stopTimer('end')" id="match-ended" value = "Match Ended" disabled></input>
-      <h3 id = "timer">Time: 0</h3>
-    </div>
+    <table>
+      <tr><td><h3 id = "timer">Time: 0</h3></td></tr>
+      <tr>
+        <td><input type="button" onclick="startTimer()" id="timer-start" value="Cube Picked Up"></input></td>
+        <td>
+          <table>
+            <tr><td><input type="button" onclick="stopTimer('switch')" id="switch-place" value = "Switch" disabled></input></td></tr>
+            <tr><td><input type="button" onclick="stopTimer('scale')" id="scale-place" value = "Scale" disabled></input></td></tr>
+            <tr><td><input type="button" onclick="stopTimer('opp_switch')" id="switch-blocked" value = "Opponent's Switch" disabled></input></td></tr>
+            <tr><td><input type="button" onclick="stopTimer('exchange')" id="cube-exchanged" value = "Exchanged" disabled></input></td></tr>
+            <tr><td><input type="button" onclick="stopTimer('end')" id="match-ended" value = "Match Ended" disabled></input></td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>
 
     <script>
       var cubePickedUp = false;
@@ -68,6 +70,7 @@
         document.getElementById("scale-place").disabled = true;
         document.getElementById("cube-dropped").disabled = true;
         document.getElementById("cube-exchanged").disabled = true;
+        document.getElementById("switch-blocked").disabled = true;
         document.getElementById("match-ended").disabled = true;
       }
 
@@ -82,6 +85,7 @@
           document.getElementById("cube-dropped").disabled = false;
           document.getElementById("cube-exchanged").disabled = false;
           document.getElementById("match-ended").disabled = false;
+          document.getElementById("switch-blocked").disabled = false;
         }
       }
     </script>
