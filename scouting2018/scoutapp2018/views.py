@@ -426,7 +426,7 @@ def scout_end(request):
 #thanks Corey!!!
 def load_match_list(request):
     #use arkansas for testing but change to heartland later
-    event = "2018mokc2"
+    event = "2018iacf"
     tba = tbapy.TBA("jwEmVymeOvhRakjCQWJS4sE4GHxD4TBKhXVsgtTtqLPvODraEbRtYz3YlmhddAkD")
     matchObjects = tba.event_matches(event, simple=True)
     master_schedule = []
